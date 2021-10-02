@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -29,7 +30,7 @@ public class HistoryManager : MonoBehaviour {
             print("Failed to get 'User Input''s Text Input component");
             return;
         }
-        _inputField.onSubmit.AddListener(AddTextEntry);
+        _inputField.onSubmit.AddListener(AddTextEntrySend);
 
         var scrollObj = GameObject.Find("Scrollbar Vertical");
         if (scrollObj == null) {
@@ -52,11 +53,18 @@ public class HistoryManager : MonoBehaviour {
 
     }
 
-    private void AddTextEntry(string text) {
+    private void AddTextEntrySend(string text)
+    {
+        
         if (text.Equals("")) {
             return;
         }
+
         server.Send(text); 
+        text = text.Insert(0, "> ");
+        AddTextEntry(text);
+    }
+    public void AddTextEntry(string text) {
         var obj = PrefabUtility.InstantiatePrefab(_textPrefab) as GameObject;
         if (obj == null) {
             print("Failed to create prefab");
