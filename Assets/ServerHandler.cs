@@ -1,99 +1,83 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.IO;
 using System.Net;
+using System.Net.NetworkInformation;
 using UnityEngine;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class ServerHandler : MonoBehaviour
-{
-    private TcpClient _Client;
+public class ServerHandler : MonoBehaviour {
+    private TcpClient _client;
     private NetworkStream _stream;
-    private HistoryManager man;
-    private bool _tryConnect;
-    private byte[] data;
 
-    private List<string> messages = new List<string>();
-    // Start is called before the first frame update
-    void Start() {
-        data = new byte[256];
-        _tryConnect = true;
-        Connect();
-        //find HistoryManager
-        var history = GameObject.Find("History");
-        man = history.GetComponent<HistoryManager>();
-        if (man == null)
-        {
-            print("Couldn't find the HistoryManager component");
-        }
+    private byte[] receivedData = new byte[256];
+    private bool _tryConnect = true;
+    private bool _tryReceive = false;
+    public void Start() {
     }
 
-    async void Connect() {
+    public void Update() {
+        if (_tryConnect)
+            Connect();
+        if (_tryReceive)
+            Receive();
+    }
+
+    private async void Receive() {
+        _tryReceive = false;
         try {
-            _Client = new TcpClient(AddressFamily.InterNetworkV6);
-            await _Client.ConnectAsync("localhost", 8080);
+            int read = await _stream.ReadAsync(receivedData, 0, 256);
+            string msg = Encoding.ASCII.GetString(receivedData, 0, read);
+            print(msg);
+            _tryReceive = _tryReceive = true;
         }
-        catch (SocketException se) {
-            print("trying again: " + se.Message);
-            return;
+        catch(IOException e) {
+            print("caught exception -> " +  e.Message);
+            _stream.Close();
+            _client.Close();
+            _tryConnect = true;
         }
-        print("Got connection");
-        _stream = _Client.GetStream();
-        //start receiving
-        _stream.BeginRead(data, 0, 256, Receive, _stream);
+
+    }
+
+    private async void Connect() {
+        print("connecting");
         _tryConnect = false;
-    }
-    // Update is called once per frame
-    void Update()
-    {
-        if (_tryConnect == true) {
-            Connect();
+        if (_client is
+        { Connected: true }) {
+            print("Client already connected");
+            return;
         }
-        else {
-            lock (messages) {
-                foreach (var msg in messages) {
-                    man.AddTextEntry(msg);
-                }
-
-                messages.Clear();
-            }
-            
-        }
-    }
-
-    public void Receive(IAsyncResult ar) {
-        NetworkStream str = ar.AsyncState as NetworkStream;
-        //byte[] buff = new byte[256];
-        int read = 0;
+        _client = new TcpClient(AddressFamily.InterNetworkV6);
         try {
-            read = str.EndRead(ar);
+            //bool available;
+            //do {
+            //    available = true;
+            //    IPGlobalProperties globProps = IPGlobalProperties.GetIPGlobalProperties();
+            //    TcpConnectionInformation[] tcpConnArr = globProps.GetActiveTcpConnections();
+            //    foreach (var tcpConn in tcpConnArr) {
+            //        if (tcpConn.LocalEndPoint.Port == 8080) {
+            //            available = false;
+            //            break;
+            //        }
+            //    }
+            //} while (available == false);
+
+            await _client.ConnectAsync("127.0.0.1", 8080);
+            _stream = _client.GetStream();
+            
+            //start receiving
         }
-        catch (IOException ioe) {
-            print("socket disconneced: " + ioe.Message);
-            Connect();
+        catch(Exception e) {
+            print("failed to connect: "+e.Message );
+            _tryConnect = true;
             return;
         }
-        string msg;
-        if (read == 0) {
-            print("done, disconnecting");
-            return;
-        }
-
-        msg = Encoding.ASCII.GetString(data, 0, read);
-        //print(msg);
-        lock (messages) {
-            messages.Add(msg);
-        }
-        _stream.BeginRead(data, 0, 256, Receive, str);
-    }
-
-    public void Send(string message) {
-        Byte[] msg = Encoding.ASCII.GetBytes(message);
-        _stream.Write(msg,0,msg.Length);
+        print("connected");
+        _tryReceive = true;
     }
 }
