@@ -1,10 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using UnityEngine;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 public class ServerHandler : MonoBehaviour
@@ -12,7 +14,8 @@ public class ServerHandler : MonoBehaviour
     private TcpClient _Client;
     private NetworkStream _stream;
 
-    private HistoryManager man; 
+    private HistoryManager man;
+
     // Start is called before the first frame update
     async void Start()
     {
@@ -41,18 +44,21 @@ public class ServerHandler : MonoBehaviour
     public async void Receive()
     {
         Byte[] data = new Byte[256];
-        int read = await _stream.ReadAsync(data, 0, 256);
+        int read;
+        try {
+            read = await _stream.ReadAsync(data, 0, 256);
+        }
+        catch (AggregateException ae) {
+            ae.Handle((e) => {
+
+            });
+        }
+        print("cancel request: "+cancelToken.IsCancellationRequested);
+        print("canceled: " + tsk.IsCanceled);
         String message = Encoding.ASCII.GetString(data, 0, read);
         //print(message);
         man.AddTextEntry(message);
-        try
-        {
-            Receive();
-        }
-        catch (SocketException e)
-        {
-            print(e.Message);
-        }
+        Receive();
     }
 
     public void Send(string message) {
