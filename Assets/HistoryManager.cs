@@ -60,7 +60,7 @@ public class HistoryManager : MonoBehaviour {
             return;
         }
 
-        //server.Send(text);
+        server.Send(text);
         text = text.Insert(0, "> ");
         AddTextEntry(text);
     }
