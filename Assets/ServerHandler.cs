@@ -29,7 +29,8 @@ public class ServerHandler : MonoBehaviour {
 
     private byte[] receivedData = new byte[256];
     private bool _tryConnect = true;
-    private bool _tryReceive = false;
+    public bool tryReceive = false;
+    public bool tryQuit = false;
 
     private HistoryManager _man;
     private OnlyFirst _msgLock = new OnlyFirst();
@@ -41,19 +42,20 @@ public class ServerHandler : MonoBehaviour {
     public void Update() {
         if (_tryConnect)
             Connect();
-        if (_tryReceive)
+        if (tryReceive)
             Receive();
     }
 
     private async void Receive() {
-        _tryReceive = false;
+        tryReceive = false;
         try {
             int read = await _stream.ReadAsync(receivedData, 0, 256);
             if (read == 0) {
                 throw new IOException("read was zero");
             }
             string msg = Encoding.ASCII.GetString(receivedData, 0, read);
-            _tryReceive = _tryReceive = true;
+            if(!tryQuit)
+                tryReceive = tryReceive = true;
             _man.AddTextEntry(msg);
         }
         catch(IOException e) {
@@ -88,7 +90,7 @@ public class ServerHandler : MonoBehaviour {
         }
         _client = new TcpClient(AddressFamily.InterNetworkV6);
         try {
-            await _client.ConnectAsync("127.0.0.1", 8080);
+            await _client.ConnectAsync("138.247.204.12", 8080);
             _stream = _client.GetStream();
             //start receiving
             _msgLock.Unlock();
@@ -103,6 +105,6 @@ public class ServerHandler : MonoBehaviour {
             return;
         }
         print("connected");
-        _tryReceive = true;
+        tryReceive = true;
     }
 }

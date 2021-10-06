@@ -61,6 +61,12 @@ public class HistoryManager : MonoBehaviour {
         }
 
         server.Send(text);
+        if (text == "quit")
+            server.tryQuit = true;
+        if (text == "join") {
+            server.tryReceive = true;
+            server.tryQuit = false;
+        }
         text = text.Insert(0, "> ");
         AddTextEntry(text);
     }
