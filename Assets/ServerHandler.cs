@@ -9,6 +9,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEditor;
 
 class OnlyFirst {
     private bool _locked = false;
@@ -90,7 +91,7 @@ public class ServerHandler : MonoBehaviour {
         }
         _client = new TcpClient(AddressFamily.InterNetworkV6);
         try {
-            await _client.ConnectAsync("138.247.204.12", 8080);
+            await _client.ConnectAsync("138.247.108.215", 8080);
             _stream = _client.GetStream();
             //start receiving
             _msgLock.Unlock();

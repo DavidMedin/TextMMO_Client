@@ -10,14 +10,14 @@ using UnityEngine.UIElements;
 
 public class HistoryManager : MonoBehaviour {
     // Start is called before the first frame update
-    private Object _textPrefab;
+    public Object textPrefab;
     private TMP_InputField _inputField;
     private ScrollRect _rect;
     private Scrollbar _scrollbar;
 
     private ServerHandler server;
     void Start() {
-        _textPrefab = AssetDatabase.LoadAssetAtPath<Object>("Assets/HistoryEntry.prefab");
+        //_textPrefab = AssetDatabase.LoadAssetAtPath<Object>("Assets/HistoryEntry.prefab");
         
         //listen to the Text Input
         var input = GameObject.Find("User Input");
@@ -69,9 +69,14 @@ public class HistoryManager : MonoBehaviour {
         }
         text = text.Insert(0, "> ");
         AddTextEntry(text);
+        //highlight text box
+        EventSystem.current.SetSelectedGameObject(_inputField.gameObject,null);
+        _inputField.OnPointerClick(new PointerEventData(EventSystem.current));
+        _inputField.text = "";
     }
     public void AddTextEntry(string text) {
-        var obj = PrefabUtility.InstantiatePrefab(_textPrefab) as GameObject;
+        //var obj = PrefabUtility.InstantiatePrefab(textPrefab) as GameObject;
+        var obj = Instantiate(textPrefab) as GameObject;
         if (obj == null) {
             print("Failed to create prefab");
             return;
@@ -86,9 +91,5 @@ public class HistoryManager : MonoBehaviour {
         
         //become child
         obj.transform.SetParent(transform.GetChild(0).GetChild(0).transform,false);
-        //highlight text box
-        EventSystem.current.SetSelectedGameObject(_inputField.gameObject,null);
-        _inputField.OnPointerClick(new PointerEventData(EventSystem.current));
-        _inputField.text = "";
     }
 }

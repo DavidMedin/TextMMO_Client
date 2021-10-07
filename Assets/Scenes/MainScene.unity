@@ -253,6 +253,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90fae9457044c2a438278bdeb001756b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tryReceive: 0
+  tryQuit: 0
 --- !u!4 &25513432
 Transform:
   m_ObjectHideFlags: 0
@@ -1457,3 +1459,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f41eeda6234f0e34eb2ff11edbf31b0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textPrefab: {fileID: 2044639125115186586, guid: cfdd51ad3b675554b89b376f7e87d1a7, type: 3}
