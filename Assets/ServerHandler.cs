@@ -32,6 +32,7 @@ public class ServerHandler : MonoBehaviour {
     private bool _tryConnect = true;
     public bool tryReceive = false;
     public bool tryQuit = false;
+    [SerializeField] public string address = "138.247.108.215";
 
     private HistoryManager _man;
     private OnlyFirst _msgLock = new OnlyFirst();
@@ -57,7 +58,9 @@ public class ServerHandler : MonoBehaviour {
             string msg = Encoding.ASCII.GetString(receivedData, 0, read);
             if(!tryQuit)
                 tryReceive = tryReceive = true;
-            _man.AddTextEntry(msg);
+            if(_man != null){
+                _man.AddTextEntry(msg);
+            }
         }
         catch(IOException e) {
             print("caught exception -> " +  e.Message);
@@ -91,11 +94,11 @@ public class ServerHandler : MonoBehaviour {
         }
         _client = new TcpClient(AddressFamily.InterNetworkV6);
         try {
-            await _client.ConnectAsync("138.247.108.215", 8080);
+            await _client.ConnectAsync(address, 8080);
             _stream = _client.GetStream();
             //start receiving
             _msgLock.Unlock();
-            _man.AddTextEntry("<color=green>Connected</color>"); 
+            if(_man != null){_man.AddTextEntry("<color=green>Connected</color>");} 
         }
         catch(Exception e) {
             print("failed to connect: "+e.Message );
