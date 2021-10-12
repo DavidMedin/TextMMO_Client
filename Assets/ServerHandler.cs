@@ -59,6 +59,7 @@ public class ServerHandler : MonoBehaviour {
             if(!tryQuit)
                 tryReceive = tryReceive = true;
             if(_man != null){
+                print(msg);
                 _man.AddTextEntry(msg);
             }
         }
@@ -103,7 +104,7 @@ public class ServerHandler : MonoBehaviour {
         catch(Exception e) {
             print("failed to connect: "+e.Message );
             _msgLock.Lock(() => {
-                _man.AddTextEntry("<color=red>Disconnected</color>"); 
+                if(_man != null) _man.AddTextEntry("<color=red>Disconnected</color>"); 
             });
             _tryConnect = true;
             return;
