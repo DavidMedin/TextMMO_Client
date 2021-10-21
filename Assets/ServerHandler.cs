@@ -30,11 +30,27 @@ public class ServerHandler : MonoBehaviour {
 
     private byte[] receivedData = new byte[256];
     private bool _tryConnect = true;
+
+    private string _connectAs;
+    public string connectAs {
+        get =>  _connectAs;
+        set {
+            _connectAs = value;
+            if (_client.Connected) {
+                Send(_connectAs);
+            }
+        }
+    }
+
     public bool tryReceive = false;
     public bool tryQuit = false;
+
+    private bool _loggedIn = false;
+    
     [SerializeField] public string address = "138.247.108.215";
 
     private HistoryManager _man;
+    public GameObject loginMan;
     private OnlyFirst _msgLock = new OnlyFirst();
     public void Start() {
         var manObj = GameObject.Find("History");
@@ -57,10 +73,20 @@ public class ServerHandler : MonoBehaviour {
             }
             string msg = Encoding.ASCII.GetString(receivedData, 0, read);
             if(!tryQuit)
-                tryReceive = tryReceive = true;
+            tryReceive = true;
             if(_man != null){
-                print(msg);
-                _man.AddTextEntry(msg);
+                //find if we got an error back
+                if (msg[0] == 1) {
+                    //this is a message
+                    msg = msg.Remove(0, 1);
+                    print($"Error from server: {msg}");
+                }
+                else {
+                    _loggedIn = true;
+                    loginMan.SetActive(false);//disable
+                }
+                if (_loggedIn)
+                    _man.AddTextEntry(msg);
             }
         }
         catch(IOException e) {
@@ -110,6 +136,9 @@ public class ServerHandler : MonoBehaviour {
             return;
         }
         print("connected");
+        if (connectAs != null) {
+            Send(connectAs);
+        }
         tryReceive = true;
     }
 }

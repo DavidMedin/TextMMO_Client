@@ -61,8 +61,10 @@ public class HistoryManager : MonoBehaviour {
         }
 
         server.Send(text);
-        if (text == "quit")
+        if (text == "quit") {
             server.tryQuit = true;
+            //server.tryReceive = false;
+        }
         if (text == "join") {
             server.tryReceive = true;
             server.tryQuit = false;
