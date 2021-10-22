@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq.Expressions;
 using System.Net;
 using System.Net.NetworkInformation;
 using UnityEngine;
@@ -23,6 +24,13 @@ class OnlyFirst {
     public void Unlock() {
         _locked = false;
     }
+}
+
+public enum MsgHeader
+{
+    msg,
+    usr_err,
+    login
 }
 public class ServerHandler : MonoBehaviour {
     private TcpClient _client;
@@ -76,17 +84,17 @@ public class ServerHandler : MonoBehaviour {
             tryReceive = true;
             if(_man != null){
                 //find if we got an error back
-                if (msg[0] == 1) {
-                    //this is a message
-                    msg = msg.Remove(0, 1);
-                    print($"Error from server: {msg}");
-                }
-                else {
-                    _loggedIn = true;
-                    loginMan.SetActive(false);//disable
-                }
-                if (_loggedIn)
-                    _man.AddTextEntry(msg);
+                //if (msg[0] == 1) {
+                //    //this is an error message
+                //    msg = msg.Remove(0, 1);
+                //    _man.AddTextEntry($"Error from server: {msg}");
+                //}
+                //else {
+                //    _loggedIn = true;
+                //    loginMan.SetActive(false);//disable
+                //}
+                //if (_loggedIn)
+                //    _man.AddTextEntry(msg);
             }
         }
         catch(IOException e) {
