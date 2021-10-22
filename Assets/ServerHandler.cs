@@ -81,8 +81,33 @@ public class ServerHandler : MonoBehaviour {
             }
             string msg = Encoding.ASCII.GetString(receivedData, 0, read);
             if(!tryQuit)
-            tryReceive = true;
+                tryReceive = true;
             if(_man != null){
+                print($"Found message ({(int)msg[0]}, {msg.Substring(1)}) L: {read}");
+                switch ((MsgHeader)msg[0])
+                {
+                    case MsgHeader.msg:
+                    {
+                        _man.AddTextEntry(msg.Substring(1));
+                        break;
+                    }
+                    case MsgHeader.usr_err:
+                    {
+                        _man.AddTextEntry($"<color=red>{msg.Substring(1)}</color>");
+                        break;
+                    }
+                    case MsgHeader.login:
+                    {
+                        _loggedIn = true;
+                        loginMan.SetActive(false);
+                        break;
+                    }
+                    default:
+                    {
+                        print($"Oh no, recieved unkown header from Server! {msg[0]}");
+                        break;
+                    }
+                }
                 //find if we got an error back
                 //if (msg[0] == 1) {
                 //    //this is an error message
