@@ -28,7 +28,7 @@ class OnlyFirst {
 
 public enum MsgHeader
 {
-    msg,
+    msg=1,
     usr_err,
     login
 }
@@ -49,11 +49,14 @@ public class ServerHandler : MonoBehaviour {
             }
         }
     }
+    
+    //Message Handlers
+    private Action<string> _msgHndl;
 
     public bool tryReceive = false;
     public bool tryQuit = false;
 
-    private bool _loggedIn = false;
+    //private bool _loggedIn = false;
     
     [SerializeField] public string address = "138.247.108.215";
 
@@ -88,7 +91,9 @@ public class ServerHandler : MonoBehaviour {
                 {
                     case MsgHeader.msg:
                     {
-                        _man.AddTextEntry(msg.Substring(1));
+                        //_man.AddTextEntry(msg.Substring(1));
+                        if (_msgHndl != null)
+                            _msgHndl(msg.Substring(1));
                         break;
                     }
                     case MsgHeader.usr_err:
@@ -98,8 +103,9 @@ public class ServerHandler : MonoBehaviour {
                     }
                     case MsgHeader.login:
                     {
-                        _loggedIn = true;
+                        //_loggedIn = true;
                         loginMan.SetActive(false);
+                        _msgHndl = _man.AddTextEntry;
                         break;
                     }
                     default:
@@ -108,18 +114,6 @@ public class ServerHandler : MonoBehaviour {
                         break;
                     }
                 }
-                //find if we got an error back
-                //if (msg[0] == 1) {
-                //    //this is an error message
-                //    msg = msg.Remove(0, 1);
-                //    _man.AddTextEntry($"Error from server: {msg}");
-                //}
-                //else {
-                //    _loggedIn = true;
-                //    loginMan.SetActive(false);//disable
-                //}
-                //if (_loggedIn)
-                //    _man.AddTextEntry(msg);
             }
         }
         catch(IOException e) {
@@ -142,6 +136,11 @@ public class ServerHandler : MonoBehaviour {
             }
 
         }
+    }
+
+    public void OnApplicationQuit(){
+        if(_client.Connected)
+            Send("quit");
     }
 
     private async void Connect() {
