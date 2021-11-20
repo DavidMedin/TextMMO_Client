@@ -47,6 +47,17 @@ ExportedObj/
 *.opendb
 *.VC.db
 
+LinuxPlayer_s.debug
+*.sln
+*.so
+*.debug
+*.csproj
+obj
+Logs
+Library
+Build_Data
+
+
 # Unity3D generated meta files
 *.pidb.meta
 *.pdb.meta

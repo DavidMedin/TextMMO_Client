@@ -53,6 +53,10 @@ public class HistoryManager : MonoBehaviour {
 
     }
 
+    private void ParseString(string text){
+       //This function generates a byte array that will be sent to the server. 
+    }
+    
     private void AddTextEntrySend(string text)
     {
         
